@@ -1,11 +1,11 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import Typography from '@material-ui/core/Typography';
 import FactoryComponent from './FactoryComponent';
 import Grid from '@material-ui/core/Grid';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { TreeResponse, AddFactoryResponse, DeleteFactoryResponse } from './api/responses';
+import { TreeResponse, DeleteFactoryResponse, FactoryResponse } from './api/responses';
 import AddIcon from '@material-ui/icons/Add';
 import IconButton from '@material-ui/core/IconButton';
 import FactoryDialog from './FactoryDialog';
@@ -56,30 +56,57 @@ export default function TreeComponent({ tree }: TreeComponentProps) {
     const socket = useContext(SocketContext);
 
     const [factories, setFactories] = useState(tree.factories);
+
+    useEffect(() => {
+        // listen for factory being updated
+        socket.on('UPDATE_FACTORY', (response: FactoryResponse) => {
+            if(factories && response.treeId === tree.id) {
+                const factoryIndex = factories.findIndex(factory => factory.id === response.factory.id);
+    
+                const newFactories = [...factories];
+    
+                if (factoryIndex > -1) {
+                    newFactories[factoryIndex] = response.factory;
+    
+                    setFactories([...newFactories]);
+                }
+            }
+        });
+    
+        // listen for a new factory
+        socket.on('ADD_FACTORY', (response: FactoryResponse) => {
+            if (response.treeId === tree.id) {
+                if (!factories) {
+                    setFactories([response.factory]);
+                } else if (!factories.some(factory => factory.id === response.factory.id)) {
+                    setFactories([...factories, response.factory]);
+                }
+            }
+        });
+    
+        // listen for factory being removed
+        socket.on('DELETE_FACTORY', (response: DeleteFactoryResponse) => {
+            if (factories && tree.id === response.treeId) {
+                const factoryIndex = factories.findIndex(factory => factory.id === response.factoryId);
+    
+                const newFactories = [...factories];
+                newFactories.splice(factoryIndex, 1);
+    
+                setFactories(newFactories);
+            }
+        });
+
+        return () => {
+            socket.off('UPDATE_FACTORY');
+            socket.off('ADD_FACTORY');
+            socket.off('DELETE_FACTORY');
+        }
+    }, [factories, socket, tree.id]);
+
     const [showAddFactoryDialog, setShowAddFactoryDialog] = useState(false);
     const [collapsed, setCollapsed] = useState(false);
 
-    socket.on('ADD_FACTORY', (response: AddFactoryResponse) => {
-        if (response.treeId === tree.id) {
-            if (!factories.some(factory => factory.id === response.factory.id)) {
-                setFactories([...factories, response.factory]);
-            }
-        }
-    });
-
-    socket.on('DELETE_FACTORY', (response: DeleteFactoryResponse) => {
-        if (tree.id === response.treeId) {
-            const factoryIndex = factories.findIndex(factory => factory.id === response.factoryId);
-
-            const newFactories = [...factories];
-            newFactories.splice(factoryIndex, 1);
-
-            setFactories(newFactories);
-        }
-    });
-
     const renderFactoryComponents = () => (
-        // tree.factories.map(factory => <FactoryComponent key={factory.id} factory={factory} />)
         factories.map(factory => <FactoryComponent key={factory.id} factory={factory} />)
     );
 
@@ -101,7 +128,7 @@ export default function TreeComponent({ tree }: TreeComponentProps) {
     }
 
     function FactoryComponents() {
-        if (factories.length > 0) {
+        if (factories && factories.length > 0) {
             return (
                 <div className={classes.factory}>
                     { renderFactoryComponents() }

@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-const socket = io(process.env.REACT_APP_BACKEND_URL || 'http://localhost:3000');
+const socket = io(process.env.REACT_APP_SOCKET_IO_URL || '/');
 
 function App() {
   const classes = useStyles();
@@ -45,7 +45,20 @@ function App() {
 
   useEffect(() => {
     fetchTrees();
-  }, []);
+  }, [])
+
+  useEffect(() => {
+
+    // listen for new trees being added from backend
+    socket.on('ADD_TREE', (response: TreeResponse) => {
+      const newTrees = [...trees, response];
+      setTrees(newTrees);
+    });
+
+    return () => {
+      socket.off('ADD_TREE');
+    }
+  }, [trees]);
 
   const renderTreeComponents = () => (
     trees.map((tree: TreeResponse) => (
@@ -56,9 +69,7 @@ function App() {
   );
 
   const handleAddTree = async () => {
-    const tree = await addTree({ name: 'Root', factories: []});
-    const newTrees = [...trees, tree];
-    setTrees(newTrees);
+    addTree({ name: 'Root', factories: []});
   }
 
   return (

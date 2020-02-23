@@ -12,7 +12,7 @@ export interface TreeResponse {
     factories: FactoryResponse[];
 }
 
-export interface AddFactoryResponse {
+export interface FactoryResponse {
     treeId: number;
     factory: FactoryResponse;
 }

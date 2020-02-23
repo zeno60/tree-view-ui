@@ -18,11 +18,16 @@ const validErrorState = {
 const MAX_INT = 2147483647;
 const MAX_STRING_LENGTH = 255;
 
+const DEFAULT_NAME = '';
+const DEFAULT_MAX = 100;
+const DEFAULT_MIN = 1;
+const DEFAULT_NUMBER = 5;
+
 export default function FactoryDialog({ factory, open, onClose, onSave}: EditFactoryDialogProps) {
-    const [name, setName] = useState(factory ? factory.name : '');
-    const [max, setMax] = useState(factory ? factory.max : 100);
-    const [min, setMin] = useState(factory ? factory.min : 1);
-    const [number, setNumber] = useState(factory ? factory.values.length : 5);
+    const [name, setName] = useState(factory ? factory.name : DEFAULT_NAME);
+    const [max, setMax] = useState(factory ? factory.max : DEFAULT_MAX);
+    const [min, setMin] = useState(factory ? factory.min : DEFAULT_MIN);
+    const [number, setNumber] = useState(factory ? factory.values.length : DEFAULT_NUMBER);
 
     const [nameError, setNameError] = useState(validErrorState);
     const [maxError, setMaxError] = useState(validErrorState);
@@ -42,6 +47,11 @@ export default function FactoryDialog({ factory, open, onClose, onSave}: EditFac
 
             setNumber(factory.values.length);
             setNumberError(validErrorState);
+        } else {
+            setName(DEFAULT_NAME);
+            setMax(DEFAULT_MAX);
+            setMin(DEFAULT_MIN);
+            setNumber(DEFAULT_NUMBER);
         }
     }
 

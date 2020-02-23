@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Chip from '@material-ui/core/Chip';
@@ -14,7 +14,6 @@ import { updateFactory } from './api/updateFactory';
 import { deleteFactory } from './api/deleteFactory';
 import { FactoryRequest } from './api/requests';
 import DeleteSweepIcon from '@material-ui/icons/DeleteSweep';
-import SocketContext from './SocketContext';
 import Button from '@material-ui/core/Button';
 import Collapse from '@material-ui/core/Collapse';
 
@@ -37,20 +36,11 @@ type FactoryComponentProps = {
     factory: FactoryResponse;
 };
 
-export default function FactoryComponent({ factory: initialFactory }: FactoryComponentProps) {
+export default function FactoryComponent({ factory }: FactoryComponentProps) {
     const classes = useStyles();
 
-    const socket = useContext(SocketContext);
-
-    const [factory, setFactory] = useState(initialFactory);
     const [showEditFactoryDialog, setShowEditFactoryDialog] = useState(false);
     const [collapsed, setCollapsed] = useState(false);
-
-    socket.on('UPDATE_FACTORY', (updatedFactory: FactoryResponse) => {
-        if (updatedFactory.id === factory.id) {
-            setFactory(updatedFactory);
-        }
-    })
 
     const handleEditFactory = () => {
         setShowEditFactoryDialog(true);
@@ -61,7 +51,7 @@ export default function FactoryComponent({ factory: initialFactory }: FactoryCom
     }
 
     const handleSaveFactory = async (request: FactoryRequest) => {
-        await updateFactory(factory.id, request);
+        updateFactory(factory.id, request);
         handleCloseEditFactoryDialog();
     }
 

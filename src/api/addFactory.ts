@@ -5,7 +5,7 @@ import { FactoryRequest } from './requests';
 export async function addFactory(treeId: number, request: FactoryRequest): Promise<FactoryResponse> {
     let factory: FactoryResponse;
     try {
-        const response = await axios.post<FactoryResponse>(`${process.env.REACT_APP_BACKEND_URL}/tree/${treeId}/factory`, request);
+        const response = await axios.post<FactoryResponse>(`${process.env.REACT_APP_API_URL}/tree/${treeId}/factory`, request);
         factory = response.data;
     } catch (error) {
         if (error.response.status === 404) {

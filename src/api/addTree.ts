@@ -5,7 +5,7 @@ import { TreeRequest } from './requests';
 export async function addTree(request: TreeRequest): Promise<TreeResponse> {
     let tree: TreeResponse;
     try {
-        const response = await axios.post<TreeResponse>(`${process.env.REACT_APP_BACKEND_URL}/tree`, request);
+        const response = await axios.post<TreeResponse>(`${process.env.REACT_APP_API_URL}/tree`, request);
         tree = response.data;
     } catch (error) {
         if (error.response.status === 404) {
