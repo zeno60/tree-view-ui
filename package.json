@@ -26,7 +26,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "./node_modules/tslint/bin/tslint -c tslint.json src/**/*.ts src/**/*.tsx"
+    "lint": "./node_modules/tslint/bin/tslint -c tslint.json src/**/*.ts src/**/*.tsx",
+    "docker-build": "docker build -t gcr.io/passport-tree-app-268922/tree-view-ui:latest .",
+    "docker-push": "docker push gcr.io/passport-tree-app-268922/tree-view-ui:latest"
   },
   "eslintConfig": {
     "extends": "react-app"
